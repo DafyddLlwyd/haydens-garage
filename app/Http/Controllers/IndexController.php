@@ -12,6 +12,16 @@ use App\Mail\BookingEmail;
 
 class IndexController extends Controller
 {
+    private $booking;
+
+    public function __construct(Booking $booking)
+    {
+        $this->booking = $booking;
+    }
+
+    /**
+     * Show the index page.
+     */
     public function show(): Response
     {
 
@@ -21,26 +31,33 @@ class IndexController extends Controller
         ]);
     }
 
+    /**
+     * Store a new booking.
+     */
     public function book(BookingRequest $request): \Illuminate\Http\RedirectResponse
     {
          $validated = $request->validated();
 
-         $booking = new Booking();
-         $booking->name = $validated['name'];
-         $booking->email = $validated['email'];
-         $booking->phone = $validated['phone'];
-         $booking->vehicle_make = $validated['vehicleMake'];
-         $booking->vehicle_model = $validated['vehicleModel'];
+         $this->booking->name = $validated['name'];
+         $this->booking->email = $validated['email'];
+         $this->booking->phone = $validated['phone'];
+         $this->booking->vehicle_make = $validated['vehicleMake'];
+         $this->booking->vehicle_model = $validated['vehicleModel'];
 
         // convert bookingDateTime to a DateTime object
-        $booking->booking_datetime = new \DateTime($validated['bookingDateTime']);
-        $booking->save();
+        $this->booking->booking_datetime = new \DateTime($validated['bookingDateTime']);
+        $this->booking->save();
 
         $bcc = config('mail.email');
 
+        try {
         Mail::to($validated['email'])
             ->bcc($bcc)
             ->send(new BookingEmail($booking));
+        } catch (\Exception $e) {
+            // log the error
+            \Log::error($e->getMessage());
+        }
 
         return to_route('index');
     }

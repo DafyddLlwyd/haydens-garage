@@ -35,3 +35,18 @@ running tests
 ```
 ./vendor/bin/sail artisan test
 ```
+
+## ENV Variables
+```
+EMAIL: email for the contact form
+```
+
+## Routes
+```
+GET / - Home page
+GET /admin - Admin page
+
+Post api/book - Book a service
+Post api/lock - Lock a date
+Post api/unlock - Unlock a date
+```

@@ -15,6 +15,11 @@ use App\Models\BlockedDate;
 
 class BookingController extends Controller
 {
+    /**
+     * Show the admin page.
+     *
+     * @return Response
+     */
     public function show(): Response
     {
 
@@ -24,6 +29,9 @@ class BookingController extends Controller
         ]);
     }
 
+    /**
+     * Lock a date.
+     */
     public function lock(BlockedDateRequest $request): RedirectResponse
     {
         $validated = $request->validated();
@@ -36,12 +44,18 @@ class BookingController extends Controller
         return to_route('admin');
     }
 
-    public function unlock(BlockedDateRequest $request): RedirectResponse
+    /**
+     * Unlock a date.
+     */
+     public function unlock(BlockedDateRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
         // delete the blocked date
-        BlockedDate::where('locked_date', $validated['date'])->first()->delete();
+        $blockedDate = BlockedDate::where('locked_date', $validated['date'])->first();
+        if ($blockedDate) {
+            $blockedDate->delete();
+        }
 
         return to_route('admin');
     }
